@@ -1,4 +1,6 @@
 import flet as ft
+import time
+import threading
 
 def main (page: ft.Page):
     
@@ -7,14 +9,60 @@ def main (page: ft.Page):
     page.bgcolor = ft.colors.BLACK # Color de Fondo
     page.theme_mode = 'dark'
     page.scroll = 'always' # Scroll para la pagina
+    page.window_width = 800  # Ancho de la ventana
+    page.window_height = 500  # Alto de la ventana
     page.update()
 
-    def mostrarValor(e):
-        valor = e.control.data
-        display.value = valor
-        page.update()
-     
     
+    claveNueva = []
+    validarClave = []
+    
+
+    def limpiarDisplay():
+        display.value = ""
+        page.update()
+    
+    def mostrarValor(e):
+        display.size = 18
+        valor = str(e.control.data)  # Convertir a cadena para asegurar la comparación
+        display.value = valor
+
+        if generar.disabled:
+            claveNueva.append(valor)
+            if len(claveNueva) == 4 :
+                display.value = "Clave Guardada Exitosamente"
+                threading.Timer(2.0, limpiarDisplay).start()
+                aceptar.disabled = False
+    
+            elif not aceptar.disabled:  
+                    validarClave.append(valor)
+                    if len(validarClave) == 4:
+                        display.value = "Clave completa, presiona Aceptar para validar."
+                        threading.Timer(2.0, limpiarDisplay).start()
+        page.update()
+
+    def validar(e):
+
+        if validarClave[0] == claveNueva [0] and validarClave[1] == claveNueva[1] and validarClave[2] == claveNueva[2] and validarClave[3] == claveNueva[3]:
+
+            display.value = "Acceso Permitido"
+
+        else:
+
+            display.value = "Acceso Denegado"
+            validarClave.clear()
+                            
+        page.update()
+        threading.Timer(2.0, limpiarDisplay).start()
+
+    def mostrarMensajeGenerar(e):
+        mensaje = e.control.data
+        display.size = 18
+        display.value = mensaje
+        generar.disabled = True
+        page.update()
+        threading.Timer(2.0, limpiarDisplay).start()
+
     display = ft.Text(value="", col={"sm": 6}, size=30, text_align='center')
     
     siete = ft.ElevatedButton(text='7', col={"sm": 2}, bgcolor=ft.colors.WHITE, color=ft.colors.BLACK, data=7, on_click=mostrarValor)
@@ -37,28 +85,28 @@ def main (page: ft.Page):
     
     cero = ft.ElevatedButton(text='0', col={"sm": 6}, bgcolor=ft.colors.WHITE, color=ft.colors.BLACK, data=0, on_click=mostrarValor)
     
-    generar = ft.ElevatedButton(text='Generar', col={"sm": 3}, bgcolor=ft.colors.CYAN, color=ft.colors.BLACK)
+    generar = ft.ElevatedButton(text='Generar', col={"sm": 3}, bgcolor=ft.colors.CYAN, color=ft.colors.BLACK, data="Bienvenido al Sistema de Seguridad, ingresa clave de 4 digitos", on_click=mostrarMensajeGenerar)
 
-    aceptar = ft.ElevatedButton(text='Aceptar', col={"sm": 3}, bgcolor=ft.colors.CYAN, color=ft.colors.BLACK)
+    aceptar = ft.ElevatedButton(text='Aceptar', col={"sm": 3}, bgcolor=ft.colors.CYAN, color=ft.colors.BLACK, disabled=True, on_click=validar)
     
     page.add(
         ft.ResponsiveRow(
-            controls=[display]
+            controls=[display], alignment=ft.MainAxisAlignment.CENTER
         ),
         ft.ResponsiveRow(
-            controls=[uno, dos, tres]
+            controls=[uno, dos, tres], alignment=ft.MainAxisAlignment.CENTER
         ),
         ft.ResponsiveRow(
-            controls=[cuatro, cinco, seis]
+            controls=[cuatro, cinco, seis], alignment=ft.MainAxisAlignment.CENTER
         ),
         ft.ResponsiveRow(
-            controls=[siete, ocho, nueve]
+            controls=[siete, ocho, nueve], alignment=ft.MainAxisAlignment.CENTER
         ),
         ft.ResponsiveRow(
-            controls=[cero]
+            controls=[cero], alignment=ft.MainAxisAlignment.CENTER
         ),
         ft.ResponsiveRow(
-            controls=[generar, aceptar]
+            controls=[generar, aceptar], alignment=ft.MainAxisAlignment.CENTER
         ),
         
     )
