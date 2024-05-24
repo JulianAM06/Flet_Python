@@ -68,4 +68,4 @@ def main (page : Page)-> None:
   
 
   
-ft.app(target=main, view=ft.AppView.WEB_BROWSER)
+ft.app(target=main)

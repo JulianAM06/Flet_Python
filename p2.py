@@ -7,4 +7,4 @@ def main (page: ft.Page):
     page.controls.append(t)
     page.update()
     
-ft.app(target=main, view=ft.AppView.WEB_BROWSER)
+ft.app(target=main)

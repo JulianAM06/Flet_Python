@@ -3,7 +3,6 @@ import flet as ft
 def main (page: ft.Page):
     
     page.title = "Navegacion"
-    
     email = ft.TextField(hint_text="Ingresa Email...", width=300)
     password = ft.TextField(hint_text="Ingresa Password...", password=True, width=300)
     

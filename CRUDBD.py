@@ -9,12 +9,15 @@ DB_USER = 'postgres'
 DB_PASSWORD = 'julianalzate06'
 DB_NAME = 'PruebaFlet'
 
+
 def main(page: ft.Page):
     page.title = 'CRUD + PostgreSQL'
     page.padding = 30
     page.bgcolor = ft.colors.BLACK
     page.theme_mode = 'dark'
     page.scroll = 'always'
+    page.window_width = 800  # Ancho de la ventana
+    page.window_height = 500  # Alto de la ventana
 
     def conectar_bd():
         try:
