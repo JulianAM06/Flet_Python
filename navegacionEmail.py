@@ -49,7 +49,20 @@ def main (page: ft.Page):
                     "/tienda",
                     [
                     ft.AppBar(title=ft.Text("Tienda"), bgcolor=ft.colors.TEAL),
-                    ft.ElevatedButton("Regresar Hola", on_click=lambda _:page.go("/hola"))
+                    ft.ElevatedButton("Regresar Hola", on_click=lambda _:page.go("/hola")),
+                    ft.ElevatedButton("Ir a Producto", on_click=lambda _:page.go("/hola/tienda/producto"))
+                    ]
+                )
+            )
+
+        if page.route == "/hola/tienda/producto":
+            
+            page.views.append(
+                ft.View(
+                    "/tienda",
+                    [
+                    ft.AppBar(title=ft.Text("Productos"), bgcolor=ft.colors.YELLOW),
+                    ft.ElevatedButton("Regresar Tienda", on_click=lambda _:page.go("/hola/tienda"))
                     ]
                 )
             )
