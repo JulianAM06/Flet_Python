@@ -21,52 +21,53 @@ def main (page: ft.Page):
     
     # Funcion para la Limpieza del Display (Proyeccion de Mensajes)
     def limpiarDisplay():
-        display.value = ""
+        display.value = "" # Vacia el display
         page.update()
     
     # Funcion que nos permite mostrar los valores en el Display, hacer validaciones para almacenar Clave Generada y Clave a Validar
     def mostrarValor(e):
-        display.size = 18
+        display.size = 18 # Tamaño del numero en el display
         valor = str(e.control.data)  # Convertir a cadena para asegurar la comparación
-        display.value = valor
+        display.value = valor # Mostrar valor en el display
 
-        if generar.disabled:
-            claveNueva.append(valor)
-            if len(claveNueva) == 4 :
-                display.value = "Clave Guardada Exitosamente"
-                threading.Timer(2.0, limpiarDisplay).start()
-                aceptar.disabled = False
+        if generar.disabled: # Valida si el boton Generar cambia de estado
+            claveNueva.append(valor) # Ingresa los valores a la lista claveNueva
+            if len(claveNueva) == 4 : # Validacion de la longitud de la lista == 4
+                display.value = "Clave Guardada Exitosamente" # Muestra mensaje en el display
+                threading.Timer(3.0, limpiarDisplay).start() # Cuenta 2 segundos y limpia el display 
+                aceptar.disabled = False # Cambia de estado el boton Aceptar
     
-            elif not aceptar.disabled:  
-                    validarClave.append(valor)
-                    if len(validarClave) == 4:
-                        display.value = "Clave completa, presiona Aceptar para validar."
-                        threading.Timer(2.0, limpiarDisplay).start()
+            elif not aceptar.disabled: # Validacion de un estado en False  
+                    validarClave.append(valor) # Ingresamos valores a la lista validarClave
+                    if len(validarClave) == 4: # Validacion de la longitud de la lista == 4
+                        display.value = "Clave completa, presiona Aceptar para validar." # Muestra mensaje en el display
+                        threading.Timer(3.0, limpiarDisplay).start() # Cuenta 2 segundos y limpia el display 
         page.update()
 
     # Funcion que nos permite comparar la Clave Generada con la Clave a Validar
     def validar(e):
+       
+        if validarClave[0] == claveNueva [0] and validarClave[1] == claveNueva[1] and validarClave[2] == claveNueva[2] and validarClave[3] == claveNueva[3]: # Validamos posicion por posicion de cada lista
 
-        if validarClave[0] == claveNueva [0] and validarClave[1] == claveNueva[1] and validarClave[2] == claveNueva[2] and validarClave[3] == claveNueva[3]:
-
-            display.value = "Acceso Permitido"
+            display.value = "Acceso Permitido" # Mostramos mensaje en el Display
+            aceptar.disabled = True
 
         else:
 
-            display.value = "Acceso Denegado"
-            validarClave.clear()
+            display.value = "Acceso Denegado" # Mostramos mensaje en le Display
+            validarClave.clear() # Si la claves no son iguales, limpiamos la lista validarClacve para ingresar una nueva
                             
         page.update()
-        threading.Timer(2.0, limpiarDisplay).start()
+        threading.Timer(3.0, limpiarDisplay).start()
 
     # Funcion que nos permite darle la funcionalidad al momento de dar click en el Boton Generar
     def mostrarMensajeGenerar(e):
-        mensaje = e.control.data
-        display.size = 18
-        display.value = mensaje
-        generar.disabled = True
+        mensaje = e.control.data # Variable mensaje alamcena el valor que tiene como data
+        display.size = 18 # Tamaño letra para el display
+        display.value = mensaje # Le paso lo almacenado en mensaje para que se vea en el display
+        generar.disabled = True # Desibilitar el boton Generar
         page.update()
-        threading.Timer(2.0, limpiarDisplay).start()
+        threading.Timer(3.0, limpiarDisplay).start()
 
     # Creacion del display, botones numericos, boton Generar y Aceptar. Tambien sus caracteristicas visuales(Front)
     display = ft.Text(value="", col={"sm": 6}, size=30, text_align='center')
