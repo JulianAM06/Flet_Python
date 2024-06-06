@@ -13,11 +13,21 @@ usuarioEncontrado = None
 
 clienteEncontrado = None
 
-productos_table = ft.DataTable(
+tablaProductos = ft.DataTable(
     columns=[
         ft.DataColumn(ft.Text("Producto")),
         ft.DataColumn(ft.Text("Cantidad")),
         ft.DataColumn(ft.Text("Precio"))
+    ],
+    rows=[]
+)
+
+tablaClientes = ft.DataTable(
+    columns=[
+        ft.DataColumn(ft.Text("Nombre")),
+        ft.DataColumn(ft.Text("Apellido")),
+        ft.DataColumn(ft.Text("Cedula")),
+        ft.DataColumn(ft.Text("Contacto"))
     ],
     rows=[]
 )
@@ -86,34 +96,52 @@ def main (page: ft.Page):
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS Facturas (
                     idFactura SERIAL PRIMARY KEY,
-                    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    cantidad INTEGER NOT NULL,
-                    total FLOAT NOT NULL,
                     fkCliente INTEGER NOT NULL,
-                    fkProducto INTEGER NOT NULL,
-                    FOREIGN KEY (fkCliente) REFERENCES Clientes(idCliente),
-                    FOREIGN KEY (fkProducto) REFERENCES Productos(idProducto)      
-                    
+                    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    totalFactura FLOAT NOT NULL,
+                    FOREIGN KEY (fkCliente) REFERENCES Clientes(idCliente)
                 )      
             """)
             conexion.commit()
             cursor.close()
             conexion.close()
 
-    def cargar_datos():
+    def cargarProductos():
         conexion = conectarBD()
         if conexion:
             cursor = conexion.cursor()
             cursor.execute("SELECT * FROM Productos")
             records = cursor.fetchall()
-            productos_table.rows.clear()
+            tablaProductos.rows.clear()
             for row in records:
-                productos_table.rows.append(
+                tablaProductos.rows.append(
                     ft.DataRow(
                         cells=[
                             ft.DataCell(ft.Text(row[1])),  # Nombre del producto
                             ft.DataCell(ft.Text(str(row[2]))),  # Cantidad del producto
                             ft.DataCell(ft.Text(f"${row[3]}"))  # Precio del producto
+                        ]
+                    )
+                )
+            cursor.close()
+            conexion.close()
+            page.update()
+
+    def cargarClientes():
+        conexion = conectarBD()
+        if conexion:
+            cursor = conexion.cursor()
+            cursor.execute("SELECT * FROM Clientes")
+            records = cursor.fetchall()
+            tablaClientes.rows.clear()
+            for row in records:
+                tablaClientes.rows.append(
+                    ft.DataRow(
+                        cells=[
+                            ft.DataCell(ft.Text(row[1])),  # Nombre del cliente
+                            ft.DataCell(ft.Text(row[2])),  # Apellido del cliente
+                            ft.DataCell(ft.Text(row[3])),  # Cedula del cliente
+                            ft.DataCell(ft.Text(row[4]))  # Contacto del cliente
                         ]
                     )
                 )
@@ -143,7 +171,6 @@ def main (page: ft.Page):
         )
         # Vista Principal 
         if page.route == "/home":
-            cargar_datos()
             page.views.append(
                 ft.View(
                     "/home",
@@ -159,7 +186,6 @@ def main (page: ft.Page):
 
         # Vista Principal Facturas    
         if page.route == "/facturas":
-            cargar_datos()
             page.views.append(
                 ft.View(
                     "/facturas",
@@ -180,9 +206,36 @@ def main (page: ft.Page):
                 )
             )
 
+        # Vista para Crear Facturas
+        if page.route == "/facturas/crear":
+            page.views.append(
+                ft.View(
+                    "/facturas",
+                    [
+                    ft.AppBar(
+                        title=ft.Text("Crear Factura"), 
+                        bgcolor=ft.colors.ORANGE,
+                        leading=ft.IconButton(
+                                icon=ft.icons.ARROW_BACK,
+                                on_click=lambda _: page.go("/facturas") 
+                            )
+                    ),
+                    ft.Container(height=50),
+                    display,
+                    ft.Row([ft.Container(width=50),clienteCrearNombre, clienteCrearApellido, clienteCrearCedula, clienteCrearContacto]),
+                    ft.Container(height=20),
+                    crearCliente,
+                    ft.ElevatedButton("Regresar", on_click=lambda _:page.go("/facturas"))
+                    ],
+                    scroll="always",
+                    vertical_alignment="center",
+                    horizontal_alignment="center" 
+                )
+            )
+
         # Vista Principal Clientes    
         if page.route == "/clientes":
-            cargar_datos()
+            cargarClientes()
             page.views.append(
                 ft.View(
                     "/clientes",
@@ -196,6 +249,7 @@ def main (page: ft.Page):
                             )
                     ),
                     ft.Row([ft.ElevatedButton("Crear Cliente", on_click=lambda _:page.go("/clientes/crear"), bgcolor=ft.colors.GREEN, color=ft.colors.WHITE, height=50, width=300), ft.ElevatedButton("Actualizar Cliente", on_click=lambda _:page.go("/clientes/actualizar"), bgcolor=ft.colors.GREEN, color=ft.colors.WHITE, height=50, width=300), ft.ElevatedButton("Eliminar Cliente", on_click=lambda _:page.go("/clientes/eliminar"), bgcolor=ft.colors.GREEN, color=ft.colors.WHITE, height=50, width=300)], alignment="center"),
+                    tablaClientes
                     ],
                     scroll="always",
                     vertical_alignment="center",
@@ -205,7 +259,6 @@ def main (page: ft.Page):
 
         # Vista para Crear Clientes
         if page.route == "/clientes/crear":
-            cargar_datos()
             page.views.append(
                 ft.View(
                     "/clientes",
@@ -292,7 +345,7 @@ def main (page: ft.Page):
 
         # Vista Principal Productos
         if page.route == "/productos":
-            cargar_datos()
+            cargarProductos()
             page.views.append(
                 ft.View(
                     "/productos",
@@ -306,7 +359,7 @@ def main (page: ft.Page):
                             )
                     ),
                     ft.Row([ft.ElevatedButton("Crear Producto", on_click=lambda _:page.go("/productos/crear"), bgcolor=ft.colors.BLUE, color=ft.colors.WHITE, height=50, width=300), ft.ElevatedButton("Actualizar Producto", on_click=lambda _:page.go("/productos/actualizar"), bgcolor=ft.colors.BLUE, color=ft.colors.WHITE, height=50, width=300), ft.ElevatedButton("Eliminar Producto", on_click=lambda _:page.go("/productos/eliminar"), bgcolor=ft.colors.BLUE, color=ft.colors.WHITE, height=50, width=300)], alignment="center"),
-                    productos_table
+                    tablaProductos
                     ],
                     scroll="always",
                     vertical_alignment="center",
@@ -653,6 +706,10 @@ def main (page: ft.Page):
                     threading.Timer(3.0, limpiarDisplay).start()
                     page.update()
 
+        else:
+            buscarProducto.error_text = "Ingresa Producto"
+            page.update()
+
         page.update()
 
     def ejecutarEliminar():
@@ -908,10 +965,6 @@ def main (page: ft.Page):
 
         page.update()
 
-
-
-
-
     display = ft.Text(value="", col={"sm": 6}, size=20, text_align='center')
     buscarProducto = ft.TextField(hint_text="Buscar/Nombre Producto", width=300)
     buscarCliente = ft.TextField(hint_text="Buscar/Cedula Cliente", width=300)
@@ -928,11 +981,11 @@ def main (page: ft.Page):
     iniciarSesion = ft.ElevatedButton(text='Iniciar Sesion', col={"sm": 3}, bgcolor=ft.colors.TEAL, color=ft.colors.BLACK, on_click=hacerLogin)
 
     productoCrear = ft.TextField(hint_text="Producto", width=300)
-    cantidadCrear = ft.TextField(hint_text="Cantidad", width=300)
-    precioCrear = ft.TextField(hint_text="Precio", width=300)
+    cantidadCrear = ft.TextField(hint_text="Cantidad", width=300, keyboard_type=ft.KeyboardType.NUMBER)
+    precioCrear = ft.TextField(hint_text="Precio", width=300, keyboard_type=ft.KeyboardType.NUMBER)
     producto = ft.TextField(hint_text="Producto", width=300, disabled=True)
-    cantidad = ft.TextField(hint_text="Cantidad", width=300, disabled=True)
-    precio = ft.TextField(hint_text="Precio", width=300, disabled=True)
+    cantidad = ft.TextField(hint_text="Cantidad", width=300, disabled=True, keyboard_type=ft.KeyboardType.NUMBER)
+    precio = ft.TextField(hint_text="Precio", width=300, disabled=True, keyboard_type=ft.KeyboardType.NUMBER)
     
     clienteCrearNombre = ft.TextField(hint_text="Nombre", width=240)
     clienteCrearApellido = ft.TextField(hint_text="Apellido", width=240)
